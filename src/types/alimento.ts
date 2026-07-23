@@ -87,3 +87,10 @@ export const TIEMPO_COMIDA_LABEL: Record<TiempoComida, string> = {
   almuerzo: 'Almuerzo',
   cena: 'Cena',
 }
+
+export const GRUPO_COLOR: Record<Grupo, { accent: string; dark: string; light: string }> = {
+  cereal:   { accent: '#C8840A', dark: '#8B5A05', light: '#FDF4E3' },
+  fruta:    { accent: '#D4561A', dark: '#9B3C0F', light: '#FEF0E8' },
+  verdura:  { accent: '#2D7A3C', dark: '#1B5228', light: '#E8F5EB' },
+  proteina: { accent: '#B8382C', dark: '#7A2118', light: '#FAEAE8' },
+}

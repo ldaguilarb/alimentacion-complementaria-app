@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient'
 import { useAlimentos } from '../../lib/useAlimentos'
 import { useRegistros } from '../../lib/useRegistros'
 import {
+  GRUPO_COLOR,
   GRUPO_LABEL,
   TIEMPO_COMIDA_LABEL,
   type Grupo,
@@ -16,23 +17,39 @@ function today() {
   return new Date().toISOString().slice(0, 10)
 }
 
+function Spinner() {
+  return (
+    <div className="flex items-center justify-center py-16">
+      <div
+        className="h-8 w-8 rounded-full border-2 border-stone-200 animate-spin"
+        style={{ borderTopColor: '#2D7A3C' }}
+      />
+    </div>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
+}
+
 export function RegistroComidas() {
   const { alimentos, loading: loadingAlimentos } = useAlimentos()
   const { registros, loading: loadingRegistros, refetch } = useRegistros()
-  const [fecha, setFecha] = useState(today())
+  const [fecha, setFecha]   = useState(today())
   const [tiempo, setTiempo] = useState<TiempoComida>('almuerzo')
   const [seleccion, setSeleccion] = useState<Record<Grupo, string>>({
-    cereal: '',
-    fruta: '',
-    verdura: '',
-    proteina: '',
+    cereal: '', fruta: '', verdura: '', proteina: '',
   })
   const [saving, setSaving] = useState(false)
 
-  const alimentosPorId = useMemo(() => {
-    const map = new Map(alimentos.map((a) => [a.id, a]))
-    return map
-  }, [alimentos])
+  const alimentosPorId = useMemo(
+    () => new Map(alimentos.map((a) => [a.id, a])),
+    [alimentos],
+  )
 
   const registrosDeEstaComida = useMemo(
     () => registros.filter((r) => r.fecha === fecha && r.tiempo_comida === tiempo),
@@ -44,10 +61,7 @@ export function RegistroComidas() {
     if (!alimentoId) return
     setSaving(true)
     await supabase.from('registros_comida').insert({
-      fecha,
-      tiempo_comida: tiempo,
-      alimento_id: alimentoId,
-      cantidad: '1 cucharada',
+      fecha, tiempo_comida: tiempo, alimento_id: alimentoId, cantidad: '1 cucharada',
     })
     setSeleccion((s) => ({ ...s, [grupo]: '' }))
     await refetch()
@@ -61,29 +75,33 @@ export function RegistroComidas() {
     setSaving(false)
   }
 
-  if (loadingAlimentos || loadingRegistros) {
-    return <p className="text-neutral-500">Cargando…</p>
-  }
+  if (loadingAlimentos || loadingRegistros) return <Spinner />
+
+  const gruposCompletos = GRUPOS.filter((g) =>
+    registrosDeEstaComida.some((r) => alimentosPorId.get(r.alimento_id)?.grupo === g),
+  ).length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Controls */}
       <div className="flex flex-wrap items-center gap-3">
         <input
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="rounded-lg border border-neutral-300 px-3 py-1.5 text-sm dark:border-neutral-700 dark:bg-neutral-800"
+          className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-700 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10"
         />
-        <div className="flex gap-1">
+        <div className="flex gap-1.5">
           {TIEMPOS.map((t) => (
             <button
               key={t}
               onClick={() => setTiempo(t)}
-              className={`rounded-full px-3 py-1.5 text-sm ${
+              className="rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all"
+              style={
                 tiempo === t
-                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
-                  : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300'
-              }`}
+                  ? { background: '#2D7A3C', color: '#fff' }
+                  : { background: '#fff', color: '#78716C', border: '1px solid #EDE8E0' }
+              }
             >
               {TIEMPO_COMIDA_LABEL[t]}
             </button>
@@ -91,41 +109,85 @@ export function RegistroComidas() {
         </div>
       </div>
 
-      <p className="text-sm text-neutral-500">
-        Porción sugerida (6-8 meses): 1 cucharada de cada grupo.
-      </p>
+      {/* Progress summary */}
+      <div
+        className="flex items-center gap-3 rounded-xl px-4 py-3"
+        style={{ background: '#E8F5EB', borderLeft: '3px solid #2D7A3C' }}
+      >
+        <div className="flex gap-1.5">
+          {GRUPOS.map((g) => {
+            const done = registrosDeEstaComida.some(
+              (r) => alimentosPorId.get(r.alimento_id)?.grupo === g,
+            )
+            return (
+              <div
+                key={g}
+                className="h-2.5 w-2.5 rounded-full transition-all"
+                style={{ background: done ? GRUPO_COLOR[g].accent : '#C6DECA' }}
+                title={GRUPO_LABEL[g]}
+              />
+            )
+          })}
+        </div>
+        <p className="text-sm text-stone-600">
+          {gruposCompletos === 4
+            ? 'Todos los grupos registrados para esta comida.'
+            : `${gruposCompletos} de 4 grupos · Porción sugerida: 1 cucharada por grupo.`}
+        </p>
+      </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        {GRUPOS.map((grupo) => {
+      {/* Group cards */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {GRUPOS.map((grupo, i) => {
+          const color = GRUPO_COLOR[grupo]
           const items = registrosDeEstaComida.filter(
             (r) => alimentosPorId.get(r.alimento_id)?.grupo === grupo,
           )
           const opciones = alimentos.filter((a) => a.grupo === grupo)
+          const logged = items.length > 0
+
           return (
             <div
               key={grupo}
-              className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800"
+              className="fade-up rounded-xl p-4 transition-all"
+              style={{
+                background: logged ? color.light : '#FFFFFF',
+                border: '1px solid #EDE8E0',
+                borderLeft: `3px solid ${color.accent}`,
+                animationDelay: `${i * 55}ms`,
+              }}
             >
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-medium">{GRUPO_LABEL[grupo]}</h3>
-                <span
-                  className={`text-xs ${items.length > 0 ? 'text-green-600 dark:text-green-400' : 'text-neutral-400'}`}
-                >
-                  {items.length > 0 ? '✓ registrado' : 'falta'}
-                </span>
+              {/* Card header */}
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="font-bold text-stone-800">{GRUPO_LABEL[grupo]}</h3>
+                {logged ? (
+                  <span
+                    className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold text-white"
+                    style={{ background: color.accent }}
+                  >
+                    <CheckIcon />
+                    {items.length} listo{items.length > 1 ? 's' : ''}
+                  </span>
+                ) : (
+                  <span className="text-xs font-semibold text-stone-400">pendiente</span>
+                )}
               </div>
 
+              {/* Logged items */}
               <ul className="mb-3 space-y-1">
                 {items.map((r) => (
                   <li
                     key={r.id}
-                    className="flex items-center justify-between rounded-lg bg-neutral-100 px-2 py-1 text-sm dark:bg-neutral-800"
+                    className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-sm"
+                    style={{ background: `${color.accent}18` }}
                   >
-                    <span>{alimentosPorId.get(r.alimento_id)?.nombre ?? '—'}</span>
+                    <span className="font-semibold text-stone-700">
+                      {alimentosPorId.get(r.alimento_id)?.nombre ?? '—'}
+                    </span>
                     <button
                       onClick={() => quitar(r.id)}
                       disabled={saving}
-                      className="text-neutral-400 hover:text-red-600"
+                      className="ml-2 text-base leading-none text-stone-400 transition-colors hover:text-red-500"
                       aria-label="Quitar"
                     >
                       ×
@@ -134,23 +196,24 @@ export function RegistroComidas() {
                 ))}
               </ul>
 
+              {/* Add row */}
               <div className="flex gap-2">
                 <select
                   value={seleccion[grupo]}
                   onChange={(e) => setSeleccion((s) => ({ ...s, [grupo]: e.target.value }))}
-                  className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-2 py-1.5 text-sm dark:border-neutral-700 dark:bg-neutral-800"
+                  className="min-w-0 flex-1 rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-700 outline-none"
                 >
                   <option value="">Elegir alimento…</option>
                   {opciones.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.nombre}
-                    </option>
+                    <option key={a.id} value={a.id}>{a.nombre}</option>
                   ))}
                 </select>
                 <button
                   onClick={() => agregar(grupo)}
                   disabled={!seleccion[grupo] || saving}
-                  className="rounded-lg bg-neutral-900 px-3 py-1.5 text-sm text-white disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900"
+                  className="rounded-lg px-3.5 py-1.5 text-base font-bold text-white transition-opacity disabled:opacity-40"
+                  style={{ background: color.dark }}
+                  aria-label={`Agregar ${GRUPO_LABEL[grupo]}`}
                 >
                   +
                 </button>

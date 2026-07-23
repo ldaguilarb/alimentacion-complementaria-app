@@ -1,9 +1,51 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Nunito', system-ui, sans-serif;
+  --color-brand: #2D7A3C;
+  --color-brand-light: #E8F5EB;
+  --color-brand-vivid: #3D9A50;
+}
+
 :root {
-  color-scheme: light dark;
+  --cereal:        #C8840A;
+  --cereal-dark:   #8B5A05;
+  --cereal-light:  #FDF4E3;
+  --fruta:         #D4561A;
+  --fruta-dark:    #9B3C0F;
+  --fruta-light:   #FEF0E8;
+  --verdura:       #2D7A3C;
+  --verdura-dark:  #1B5228;
+  --verdura-light: #E8F5EB;
+  --proteina:      #B8382C;
+  --proteina-dark: #7A2118;
+  --proteina-light: #FAEAE8;
 }
 
 body {
   margin: 0;
+  background: #F9F6F0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fade-up 0.3s ease-out both;
+}
+
+@keyframes fill-bar {
+  from { width: 0%; }
+}
+
+.fill-bar {
+  animation: fill-bar 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up, .fill-bar { animation: none; }
 }
