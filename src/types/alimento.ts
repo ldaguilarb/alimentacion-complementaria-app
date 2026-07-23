@@ -10,6 +10,7 @@ export type Subgrupo =
   | 'origen_animal'
   | 'leguminosa'
   | 'oleaginosa'
+  | 'otro'
 
 export type AlergenoCategoria =
   | 'leche'
@@ -29,6 +30,8 @@ export interface Alimento {
   es_alergenico: boolean
   alergeno_categoria: AlergenoCategoria | null
   nombres_alternos: string | null
+  preparacion_personalizada?: string | null
+  is_personalizado?: boolean
 }
 
 export interface Receta {
@@ -69,6 +72,7 @@ export const SUBGRUPO_LABEL: Record<Subgrupo, string> = {
   origen_animal: 'Origen animal',
   leguminosa: 'Leguminosa',
   oleaginosa: 'Oleaginosa',
+  otro: 'Preparación personalizada',
 }
 
 export const ALERGENO_LABEL: Record<AlergenoCategoria, string> = {
