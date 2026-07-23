@@ -147,7 +147,7 @@ export function CalendarioIntroduccion() {
                   animationDelay: `${i * 40}ms`,
                 }}
               >
-                <span className="w-28 shrink-0 text-sm font-semibold text-stone-700">
+                <span className="w-24 shrink-0 text-sm font-semibold text-stone-700 sm:w-28">
                   {ALERGENO_LABEL[a]}
                 </span>
 

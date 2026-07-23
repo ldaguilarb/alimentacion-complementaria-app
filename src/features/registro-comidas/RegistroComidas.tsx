@@ -84,19 +84,19 @@ export function RegistroComidas() {
   return (
     <div className="space-y-5">
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
         <input
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-700 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10"
+          className="self-start rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm font-semibold text-stone-700 outline-none focus:border-brand focus:ring-2 focus:ring-brand/10"
         />
         <div className="flex gap-1.5">
           {TIEMPOS.map((t) => (
             <button
               key={t}
               onClick={() => setTiempo(t)}
-              className="rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all"
+              className="flex-1 rounded-full px-3.5 py-2 text-sm font-semibold transition-all sm:flex-none sm:py-1.5"
               style={
                 tiempo === t
                   ? { background: '#2D7A3C', color: '#fff' }

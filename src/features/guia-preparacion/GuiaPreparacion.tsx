@@ -92,9 +92,9 @@ export function GuiaPreparacion() {
 
       {/* List + detail */}
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* Food list */}
+        {/* Food list – hidden on mobile when detail is open */}
         <div
-          className="max-h-96 overflow-y-auto rounded-2xl p-2"
+          className={`overflow-y-auto rounded-2xl p-2 sm:block sm:max-h-96 ${seleccionado ? 'hidden' : 'block max-h-80'}`}
           style={{ background: '#fff', border: '1px solid #EDE8E0' }}
         >
           {alimentosFiltrados.length === 0 && (
@@ -128,9 +128,9 @@ export function GuiaPreparacion() {
           })}
         </div>
 
-        {/* Detail panel */}
+        {/* Detail panel – always visible on desktop; on mobile only when something selected */}
         <div
-          className="rounded-2xl p-5"
+          className={`rounded-2xl p-5 sm:block ${seleccionado ? 'block' : 'hidden'}`}
           style={{ background: '#fff', border: '1px solid #EDE8E0' }}
         >
           {!seleccionado && (
@@ -148,6 +148,17 @@ export function GuiaPreparacion() {
             const color = GRUPO_COLOR[seleccionado.grupo]
             return (
               <div className="space-y-4 fade-up">
+                {/* Back button – mobile only */}
+                <button
+                  onClick={() => setSeleccionadoId(null)}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-stone-500 sm:hidden"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  Volver a la lista
+                </button>
+
                 {/* Food header */}
                 <div>
                   <div className="mb-1 flex items-center gap-2">
