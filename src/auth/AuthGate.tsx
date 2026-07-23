@@ -46,7 +46,7 @@ function LoginForm() {
     setError(null)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setSubmitting(false)
-    if (error) setError('Clave o usuario incorrecto.')
+    if (error) setError(`${error.message} (status ${error.status ?? '?'})`)
   }
 
   return (
