@@ -5,6 +5,7 @@ import { GuiaPreparacion } from './features/guia-preparacion/GuiaPreparacion'
 import { RegistroComidas } from './features/registro-comidas/RegistroComidas'
 import { CalendarioIntroduccion } from './features/calendario-introduccion/CalendarioIntroduccion'
 import { ContadorConsumo } from './features/contador-consumo/ContadorConsumo'
+import { VistaSemanal } from './features/vista-semanal/VistaSemanal'
 
 function IconUtensils({ size = 20 }: { size?: number }) {
   return (
@@ -35,6 +36,16 @@ function IconBook({ size = 20 }: { size?: number }) {
   )
 }
 
+function IconWeek({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="18" height="18" x="3" y="4" rx="2" />
+      <path d="M3 10h18" />
+      <path d="M7 14h.01M11 14h.01M15 14h.01M7 17h.01M11 17h.01" />
+    </svg>
+  )
+}
+
 function IconBarChart({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -61,6 +72,7 @@ function LeafMark() {
 
 const NAV_ITEMS = [
   { to: '/',           label: 'Registro',   end: true, icon: IconUtensils },
+  { to: '/semana',     label: 'Semana',                icon: IconWeek },
   { to: '/calendario', label: 'Calendario',            icon: IconCalendar },
   { to: '/guia',       label: 'Guía',                  icon: IconBook },
   { to: '/consumo',    label: 'Consumo',               icon: IconBarChart },
@@ -120,6 +132,7 @@ function AppShell() {
       <main className="mx-auto max-w-2xl px-4 py-6 pb-28 sm:pb-8">
         <Routes>
           <Route path="/"           element={<RegistroComidas />} />
+          <Route path="/semana"     element={<VistaSemanal />} />
           <Route path="/calendario" element={<CalendarioIntroduccion />} />
           <Route path="/guia"       element={<GuiaPreparacion />} />
           <Route path="/consumo"    element={<ContadorConsumo />} />
